@@ -20,11 +20,11 @@ public class EndpointHit {
     @Column(name = "id", nullable = false)
     private Long id;
     @Column(name = "app", nullable = false)
-    String app;
+    private String app;
     @Column(name = "uri", nullable = false)
-    String uri;
+    private String uri;
     @Column(name = "ip", nullable = false)
-    String ip;
+    private String ip;
     @Column(name = "created", nullable = false)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime timestamp;
