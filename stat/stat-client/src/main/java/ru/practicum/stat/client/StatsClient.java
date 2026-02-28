@@ -1,5 +1,6 @@
 package ru.practicum.stat.client;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.ClientHttpRequestFactories;
 import org.springframework.boot.web.client.ClientHttpRequestFactorySettings;
@@ -13,17 +14,15 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Component
+@Slf4j
 public class StatsClient {
     private final RestClient restClient;
-    private final String serverUrl;
 
     public StatsClient(@Value("${client.url}") String serverUrl) {
-        this.serverUrl = serverUrl;
-
-        // Настройка клиента с таймаутами
         ClientHttpRequestFactorySettings settings = ClientHttpRequestFactorySettings.DEFAULTS
                 .withConnectTimeout(Duration.ofSeconds(5))
                 .withReadTimeout(Duration.ofSeconds(10));
@@ -34,29 +33,33 @@ public class StatsClient {
                 .build();
     }
 
-    public void hit(EndpointHitDto hit) {
-        restClient.post()
+    public EndpointHitDto hit(EndpointHitDto hit) {
+        return restClient.post()
                 .uri("/hit")
                 .body(hit)
                 .retrieve()
-                .toBodilessEntity(); // 201 Created без тела
+                .body(EndpointHitDto.class);
     }
 
     public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end,
                                        List<String> uris, Boolean unique) {
-        String uri = UriComponentsBuilder.fromPath("/stats")
+
+        UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/stats")
                 .queryParam("start", start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .queryParam("end", end.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-                .queryParam("uris", uris)
-                .queryParam("unique", unique)
-                .build()
-                .toUriString();
+                .queryParam("unique", unique);
+
+        if (uris != null && !uris.isEmpty()) {
+            builder.queryParam("uris", String.join(",", uris));
+        }
+
+        String uriString = builder.build().toUriString();
 
         ViewStatsDto[] response = restClient.get()
-                .uri(uri)
+                .uri(uriString)
                 .retrieve()
                 .body(ViewStatsDto[].class);
 
-        return Arrays.asList(response);
+        return response != null ? Arrays.asList(response) : Collections.emptyList();
     }
 }

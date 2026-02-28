@@ -19,8 +19,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL) // не включать null-поля в JSON
 public class EndpointHitDto {
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Integer id;
+    private Long id;
 
     @NotBlank(message = "Идентификатор сервиса не должен быть пустым")
     private String app;
