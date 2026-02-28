@@ -6,9 +6,12 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.stat.dto.EndpointHitDto;
+import ru.practicum.stat.dto.ViewStatsDto;
 import ru.practicum.stat.server.service.StatServerService;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -20,23 +23,24 @@ public class StatServerController {
 
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
-    public void saveHit() {
-        statServerService.saveHit();
+    public EndpointHitDto saveHit(@RequestBody EndpointHitDto dto) {
+        log.debug("PostMapping /hit. dto: {}", dto);
+        return statServerService.saveHit(dto);
     }
 
     @GetMapping("/stats")
     @ResponseStatus(HttpStatus.OK)
-    public void getHits(@RequestParam("start")
-                        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-                        LocalDateTime start,
-                        @RequestParam("end")
-                        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-                        LocalDateTime end,
-                        @RequestParam(name = "uris", required = false)
-                        List<String> uris,
-                        @RequestParam(name = "unique", defaultValue = "false")
-                        boolean unique) {
+    public List<ViewStatsDto> getHits(@RequestParam("start")
+                                      @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+                                      LocalDateTime start,
+                                      @RequestParam("end")
+                                      @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+                                      LocalDateTime end,
+                                      @RequestParam(name = "uris", required = false)
+                                      List<String> uris,
+                                      @RequestParam(name = "unique", defaultValue = "false")
+                                      boolean unique) {
         log.debug("GetMapping /stats. Params: start: {}, end: {}, uris: {}, unique {}", start, end, uris, unique);
-        statServerService.getHits();
+        return statServerService.getStats(start, end, uris, unique);
     }
 }
