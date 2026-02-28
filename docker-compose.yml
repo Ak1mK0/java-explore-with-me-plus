@@ -1,6 +1,6 @@
 services:
   stat-server:
-    build: stat/stat-server
+    build: stat/stats-server
     container_name: stat-server
     ports:
       - "9090:9090"
@@ -21,7 +21,7 @@ services:
     image: postgres:16.1
     container_name: stat-server-db
     volumes:
-      - ./stat/stat-server/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+      - ./stat/stats-server/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
     ports:
       - "5432:5432"
     environment:
