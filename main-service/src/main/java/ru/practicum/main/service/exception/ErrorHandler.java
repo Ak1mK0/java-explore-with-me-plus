@@ -22,12 +22,12 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ApiError handleCategoryNotFoundException(final CategoryNotFoundException e) {
+    public ApiError handleNotFoundException(final NotFoundException e) {
         log.info("404 {}", e.getMessage(), e);
         return buildApiError(HttpStatus.NOT_FOUND, "The required object was not found.", e.getMessage(), e);
     }
 
-    @ExceptionHandler({CategoryNameAlreadyExistsException.class, DataIntegrityViolationException.class})
+    @ExceptionHandler({AlreadyExistsException.class, DataIntegrityViolationException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleConflictException(final RuntimeException e) {
         log.info("409 {}", e.getMessage(), e);
@@ -56,7 +56,7 @@ public class ErrorHandler {
         return buildApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Error occurred", e.getMessage(), e);
     }
 
-    private ApiError buildApiError(HttpStatus status, String title, String message, Exception e) {
+    private ApiError buildApiError(HttpStatus status, String reason, String message, Exception e) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
@@ -64,7 +64,7 @@ public class ErrorHandler {
 
         return ApiError.builder()
                 .status(status)
-                .reason(title)
+                .reason(reason)
                 .message(message)
                 .timestamp(LocalDateTime.now().format(FORMATTER))
                 .stackTrace(stackTrace)
