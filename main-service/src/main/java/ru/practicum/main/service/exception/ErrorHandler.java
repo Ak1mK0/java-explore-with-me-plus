@@ -22,12 +22,12 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ApiError handleCategoryNotFoundException(final CategoryNotFoundException e) {
+    public ApiError notFoundException(final NotFoundException e) {
         log.info("404 {}", e.getMessage(), e);
         return buildApiError(HttpStatus.NOT_FOUND, "The required object was not found.", e.getMessage(), e);
     }
 
-    @ExceptionHandler({CategoryNameAlreadyExistsException.class, DataIntegrityViolationException.class})
+    @ExceptionHandler({AlreadyExistsException.class, DataIntegrityViolationException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleConflictException(final RuntimeException e) {
         log.info("409 {}", e.getMessage(), e);

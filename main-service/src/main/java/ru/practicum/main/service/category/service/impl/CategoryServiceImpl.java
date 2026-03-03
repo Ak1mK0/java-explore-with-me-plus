@@ -10,8 +10,8 @@ import ru.practicum.main.service.category.mapper.CategoryMapper;
 import ru.practicum.main.service.category.model.Category;
 import ru.practicum.main.service.category.repository.CategoryRepository;
 import ru.practicum.main.service.category.service.CategoryService;
-import ru.practicum.main.service.exception.CategoryNotFoundException;
-import ru.practicum.main.service.exception.CategoryNameAlreadyExistsException;
+import ru.practicum.main.service.exception.NotFoundException;
+import ru.practicum.main.service.exception.AlreadyExistsException;
 import ru.practicum.main.service.exception.OperationConditionsNotMetException;
 
 @Service
@@ -28,7 +28,7 @@ public class CategoryServiceImpl implements CategoryService {
         log.info("Создание новой категории с именем: {}", categoryDto.getName());
 
         if (categoryRepository.existsByName(categoryDto.getName())) {
-            throw new CategoryNameAlreadyExistsException("Категория с именем '" + categoryDto.getName() + "' уже существует");
+            throw new AlreadyExistsException("Категория с именем '" + categoryDto.getName() + "' уже существует");
         }
 
         Category category = CategoryMapper.toEntity(categoryDto);
@@ -37,7 +37,7 @@ public class CategoryServiceImpl implements CategoryService {
             log.info("Категория успешно создана с id: {}", category.getId());
             return CategoryMapper.toDto(category);
         } catch (DataIntegrityViolationException e) {
-            throw new CategoryNameAlreadyExistsException("Категория с именем '" + categoryDto.getName() + "' уже существует");
+            throw new AlreadyExistsException("Категория с именем '" + categoryDto.getName() + "' уже существует");
         }
     }
 
@@ -47,11 +47,11 @@ public class CategoryServiceImpl implements CategoryService {
         log.info("Обновление категории с id: {}", catId);
 
         Category category = categoryRepository.findById(catId)
-                .orElseThrow(() -> new CategoryNotFoundException("Категория с id=" + catId + " не найдена"));
+                .orElseThrow(() -> new NotFoundException("Категория с id=" + catId + " не найдена"));
 
         if (!category.getName().equals(categoryDto.getName()) &&
                 categoryRepository.existsByName(categoryDto.getName())) {
-            throw new CategoryNameAlreadyExistsException("Категория с именем '" + categoryDto.getName() + "' уже существует");
+            throw new AlreadyExistsException("Категория с именем '" + categoryDto.getName() + "' уже существует");
         }
 
         category.setName(categoryDto.getName());
@@ -61,7 +61,7 @@ public class CategoryServiceImpl implements CategoryService {
             log.info("Категория с id: {} успешно обновлена", catId);
             return CategoryMapper.toDto(category);
         } catch (DataIntegrityViolationException e) {
-            throw new CategoryNameAlreadyExistsException("Категория с именем '" + categoryDto.getName() + "' уже существует");
+            throw new AlreadyExistsException("Категория с именем '" + categoryDto.getName() + "' уже существует");
         }
     }
 
@@ -71,7 +71,7 @@ public class CategoryServiceImpl implements CategoryService {
         log.info("Удаление категории с id: {}", catId);
 
         if (!categoryRepository.existsById(catId)) {
-            throw new CategoryNotFoundException("Категория с id=" + catId + " не найдена");
+            throw new NotFoundException("Категория с id=" + catId + " не найдена");
         }
 
         try {
