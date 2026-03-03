@@ -1,26 +1,73 @@
 package ru.practicum.main.service.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandler {
 
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError handleCategoryNotFoundException(final CategoryNotFoundException e) {
+        log.info("404 {}", e.getMessage(), e);
+        return buildApiError(HttpStatus.NOT_FOUND, "The required object was not found.", e.getMessage(), e);
+    }
+
+    @ExceptionHandler({CategoryNameAlreadyExistsException.class, DataIntegrityViolationException.class})
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handleConflictException(final RuntimeException e) {
+        log.info("409 {}", e.getMessage(), e);
+        return buildApiError(HttpStatus.CONFLICT, "Integrity constraint has been violated.", e.getMessage(), e);
+    }
+
+    @ExceptionHandler(OperationConditionsNotMetException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ApiError handleOperationConditionsNotMetException(final OperationConditionsNotMetException e) {
+        log.info("403 {}", e.getMessage(), e);
+        return buildApiError(HttpStatus.FORBIDDEN, "For the requested operation the conditions are not met.", e.getMessage(), e);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
+        log.info("400 {}", e.getMessage(), e);
+        String errorMessage = Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage();
+        return buildApiError(HttpStatus.BAD_REQUEST, "Incorrectly made request.", errorMessage, e);
+    }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ApiError handleException(final Exception e, HttpStatus status) {
-        log.info("500 {}", e.getMessage(), e);
+    public ApiError handleException(final Exception e) {
+        log.error("500 {}", e.getMessage(), e);
+        return buildApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Error occurred", e.getMessage(), e);
+    }
+
+    private ApiError buildApiError(HttpStatus status, String title, String message, Exception e) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
         String stackTrace = sw.toString();
-        return new ApiError(status, "Error ....", e.getMessage(), stackTrace);
+
+        return ApiError.builder()
+                .status(status)
+                .reason(title)
+                .message(message)
+                .timestamp(LocalDateTime.now().format(FORMATTER))
+                .stackTrace(stackTrace)
+                .build();
     }
 }
