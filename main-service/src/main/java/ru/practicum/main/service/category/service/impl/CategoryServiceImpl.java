@@ -3,6 +3,8 @@ package ru.practicum.main.service.category.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.service.category.dto.CategoryDto;
@@ -13,6 +15,9 @@ import ru.practicum.main.service.category.service.CategoryService;
 import ru.practicum.main.service.exception.CategoryNotFoundException;
 import ru.practicum.main.service.exception.CategoryNameAlreadyExistsException;
 import ru.practicum.main.service.exception.OperationConditionsNotMetException;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -82,5 +87,29 @@ public class CategoryServiceImpl implements CategoryService {
                     "Невозможно удалить категорию с id=" + catId + ", так как она связана с существующими событиями"
             );
         }
+    }
+
+    @Override
+    public List<CategoryDto> getCategories(int from, int size) {
+        log.info("Получение списка категорий с from={}, size={}", from, size);
+
+        // Расчет правильной страницы (from - это количество пропущенных элементов)
+        int page = from / size;
+        Pageable pageable = PageRequest.of(page, size);
+
+        return categoryRepository.findAll(pageable)
+                .stream()
+                .map(CategoryMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public CategoryDto getCategory(Long catId) {
+        log.info("Получение категории с id: {}", catId);
+
+        Category category = categoryRepository.findById(catId)
+                .orElseThrow(() -> new CategoryNotFoundException("Категория с id=" + catId + " не найдена"));
+
+        return CategoryMapper.toDto(category);
     }
 }
