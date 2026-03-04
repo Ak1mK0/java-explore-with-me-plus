@@ -49,7 +49,7 @@ public class RequestServiceImpl implements RequestService {
                 .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
 
         // Проверка существования события
-        Event event = eventRepository.findById(eventId)
+        Event event = eventRepository.findById(Long.valueOf(eventId))  // Исправлено
                 .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
 
         // Инициатор не может подать заявку на своё событие

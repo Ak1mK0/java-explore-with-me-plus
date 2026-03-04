@@ -19,8 +19,8 @@ public class RequestMapper {
         return ParticipationRequestDto.builder()
                 .id(request.getId())
                 .created(request.getCreated())
-                .event(request.getEvent().getId())
-                .requester(request.getRequester().getId())
+                .event(request.getEvent().getId().intValue())  // Исправлено: Long -> Integer
+                .requester(request.getRequester().getId().intValue()) // если requester тоже Integer, добавить преобразование
                 .status(request.getStatus())
                 .build();
     }
