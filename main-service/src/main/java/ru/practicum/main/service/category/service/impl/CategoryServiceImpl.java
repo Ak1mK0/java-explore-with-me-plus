@@ -14,7 +14,7 @@ import ru.practicum.main.service.category.repository.CategoryRepository;
 import ru.practicum.main.service.category.service.CategoryService;
 import ru.practicum.main.service.exception.AlreadyExistsException;
 import ru.practicum.main.service.exception.NotFoundException;
-import ru.practicum.main.service.exception.OperationConditionsNotMetException;
+import ru.practicum.main.service.exception.ConditionsNotMetException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -83,7 +83,7 @@ public class CategoryServiceImpl implements CategoryService {
             categoryRepository.deleteById(catId);
             log.info("Категория с id: {} успешно удалена", catId);
         } catch (DataIntegrityViolationException e) {
-            throw new OperationConditionsNotMetException(
+            throw new ConditionsNotMetException(
                     "Невозможно удалить категорию с id=" + catId + ", так как она связана с существующими событиями"
             );
         }

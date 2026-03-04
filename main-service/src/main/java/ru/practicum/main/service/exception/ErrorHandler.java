@@ -34,9 +34,9 @@ public class ErrorHandler {
         return buildApiError(HttpStatus.CONFLICT, "Integrity constraint has been violated.", e.getMessage(), e);
     }
 
-    @ExceptionHandler(OperationConditionsNotMetException.class)
+    @ExceptionHandler(ConditionsNotMetException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ApiError handleOperationConditionsNotMetException(final OperationConditionsNotMetException e) {
+    public ApiError handleOperationConditionsNotMetException(final ConditionsNotMetException e) {
         log.info("403 {}", e.getMessage(), e);
         return buildApiError(HttpStatus.FORBIDDEN, "For the requested operation the conditions are not met.", e.getMessage(), e);
     }

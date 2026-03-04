@@ -46,34 +46,34 @@ public class RequestServiceImpl implements RequestService {
 
         // Проверка существования пользователя
         User requester = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("Пользователь с id=" + userId + " не найден"));
+                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
 
         // Проверка существования события
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new EventNotFoundException("Событие с id=" + eventId + " не найдено"));
+                .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
 
         // Инициатор не может подать заявку на своё событие
         if (event.getInitiator().getId().equals(userId)) {
-            throw new ParticipationConditionsNotMetException("Инициатор события не может добавить запрос " +
+            throw new ConditionsNotMetException("Инициатор события не может добавить запрос " +
                     "на участие в своём событии");
         }
 
         // Событие должно быть опубликовано
         if (event.getState() != EventState.PUBLISHED) {
-            throw new ParticipationConditionsNotMetException("Нельзя участвовать в неопубликованном событии");
+            throw new ConditionsNotMetException("Нельзя участвовать в неопубликованном событии");
         }
 
         // Проверка на существующую заявку
         requestRepository.findByEventIdAndRequesterId(eventId, userId)
                 .ifPresent(r -> {
-                    throw new ParticipationConditionsNotMetException("Нельзя добавить повторный запрос на это событие");
+                    throw new ConditionsNotMetException("Нельзя добавить повторный запрос на это событие");
                 });
 
         // Проверка лимита участников (если лимит установлен и достигнут)
         if (event.getParticipantLimit() > 0) {
             long confirmedCount = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
             if (confirmedCount >= event.getParticipantLimit()) {
-                throw new ParticipationConditionsNotMetException("Достигнут лимит участников для события");
+                throw new ConditionsNotMetException("Достигнут лимит участников для события");
             }
         }
 
@@ -96,7 +96,7 @@ public class RequestServiceImpl implements RequestService {
         log.info("Отмена заявки {} пользователем {}", requestId, userId);
 
         ParticipationRequest request = requestRepository.findByIdAndRequesterId(requestId, userId)
-                .orElseThrow(() -> new RequestNotFoundException("Запрос с id=" + requestId +
+                .orElseThrow(() -> new NotFoundException("Запрос с id=" + requestId +
                         " не найден или не принадлежит пользователю"));
 
         request.setStatus(RequestStatus.CANCELED);
@@ -107,7 +107,7 @@ public class RequestServiceImpl implements RequestService {
 
     private void checkUserExists(Integer userId) {
         if (!userRepository.existsById(userId)) {
-            throw new UserNotFoundException("Пользователь с id=" + userId + " не найден");
+            throw new NotFoundException("Пользователь с id=" + userId + " не найден");
         }
     }
 }
