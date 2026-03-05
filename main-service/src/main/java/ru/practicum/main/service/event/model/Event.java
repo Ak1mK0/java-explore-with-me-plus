@@ -47,4 +47,8 @@ public class Event {
 
     @Column(name = "request_moderation")
     private Boolean requestModeration; // true - требуется пре-модерация
+
+    public String getTitle() {
+        return null;
+    }
 }
