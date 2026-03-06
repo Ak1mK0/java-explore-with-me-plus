@@ -19,7 +19,7 @@ services:
 
   stas-server-db:
     image: postgres:16.1
-    container_name: stat-server-db
+    container_name: stats-server-db
     volumes:
       - ./stat/stats-server/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
     ports:
