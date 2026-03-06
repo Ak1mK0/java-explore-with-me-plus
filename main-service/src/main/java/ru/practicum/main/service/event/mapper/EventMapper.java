@@ -2,11 +2,13 @@ package ru.practicum.main.service.event.mapper;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import ru.practicum.main.service.category.dto.CategoryDto;
 import ru.practicum.main.service.category.mapper.CategoryMapper;
 import ru.practicum.main.service.category.model.Category;
 import ru.practicum.main.service.event.dto.*;
 import ru.practicum.main.service.event.model.Event;
 import ru.practicum.main.service.event.model.EventState;
+import ru.practicum.main.service.user.dto.UserShortDto;
 import ru.practicum.main.service.user.mapper.UserMapper;
 import ru.practicum.main.service.user.model.User;
 

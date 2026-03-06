@@ -1,11 +1,11 @@
 services:
-  stats-server:
+  stat-server:
     build: stat/stats-server
-    container_name: stats-server
+    container_name: stat-server
     ports:
       - "9090:9090"
     depends_on:
-      stats-server-db:
+      stat-server-db:
         condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_STAT_SERVER}
@@ -17,9 +17,9 @@ services:
       interval: 5s
       retries: 10
 
-  stats-server-db:
+  stat-server-db:
     image: postgres:16.1
-    container_name: stats-server-db
+    container_name: stat-server-db
     volumes:
       - ./stat/stats-server/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
     ports:
@@ -40,7 +40,7 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      stats-server:
+      stat-server:
         condition: service_healthy
       ewm-main-db:
         condition: service_healthy
