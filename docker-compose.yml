@@ -1,11 +1,11 @@
 services:
-  stat-server:
+  stats-server:
     build: stat/stats-server
-    container_name: stat-server
+    container_name: stats-server
     ports:
       - "9090:9090"
     depends_on:
-      stat-server-db:
+      stats-server-db:
         condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_STAT_SERVER}
