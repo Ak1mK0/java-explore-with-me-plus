@@ -8,6 +8,8 @@ import ru.practicum.main.service.event.model.Event;
 import ru.practicum.main.service.event.model.EventState;
 import ru.practicum.main.service.event.repository.EventRepository;
 import ru.practicum.main.service.exception.*;
+import ru.practicum.main.service.request.dto.EventRequestStatusUpdateRequest;
+import ru.practicum.main.service.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.main.service.request.dto.ParticipationRequestDto;
 import ru.practicum.main.service.request.mapper.RequestMapper;
 import ru.practicum.main.service.request.model.ParticipationRequest;
@@ -17,7 +19,9 @@ import ru.practicum.main.service.request.service.RequestService;
 import ru.practicum.main.service.user.model.User;
 import ru.practicum.main.service.user.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -109,5 +113,90 @@ public class RequestServiceImpl implements RequestService {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("Пользователь с id=" + userId + " не найден");
         }
+    }
+
+    @Override
+    public List<ParticipationRequestDto> getEventRequests(Long userId, Long eventId) {
+        log.info("Получение заявок на событие {} для пользователя {}", eventId, userId);
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
+        if (event.getInitiator().getId().longValue() != userId) {
+            throw new ConditionsNotMetException("Пользователь не является инициатором события");
+        }
+        return requestRepository.findAllByEventId(eventId.intValue()).stream()
+                .map(RequestMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public EventRequestStatusUpdateResult updateEventRequestsStatus(Long userId, Long eventId,
+                                                                    EventRequestStatusUpdateRequest updateRequest) {
+        log.info("updateEventRequestsStatus: userId={}, eventId={}, requestIds={}", userId, eventId, updateRequest.getRequestIds());
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
+        log.info("Event initiator id = {}", event.getInitiator().getId());
+
+        // Проверка прав инициатора
+        if (event.getInitiator().getId().longValue() != userId) {
+            log.warn("Initiator mismatch: event initiator id = {}, userId = {}", event.getInitiator().getId(), userId);
+            throw new ConditionsNotMetException("Пользователь не является инициатором события");
+        }
+
+        List<Integer> requestIds = updateRequest.getRequestIds().stream()
+                .map(Long::intValue)
+                .collect(Collectors.toList());
+        List<ParticipationRequest> requests = requestRepository.findAllByIdIn(requestIds);
+
+        // Проверка принадлежности событию
+        for (ParticipationRequest req : requests) {
+            if (!req.getEvent().getId().equals(eventId)) {
+                throw new ConditionsNotMetException("Запрос с id=" + req.getId() + " не относится к событию " + eventId);
+            }
+        }
+
+        RequestStatus newStatus = updateRequest.getStatus();
+        List<ParticipationRequest> confirmed = new ArrayList<>();
+        List<ParticipationRequest> rejected = new ArrayList<>();
+
+        if (newStatus == RequestStatus.CONFIRMED) {
+            long confirmedCount = requestRepository.countByEventIdAndStatus(eventId.intValue(), RequestStatus.CONFIRMED);
+            long limit = event.getParticipantLimit();
+
+            for (ParticipationRequest req : requests) {
+                if (req.getStatus() != RequestStatus.PENDING) {
+                    throw new ConditionsNotMetException("Нельзя подтвердить запрос, который не в статусе PENDING");
+                }
+                if (limit == 0 || confirmedCount < limit) {
+                    req.setStatus(RequestStatus.CONFIRMED);
+                    confirmed.add(req);
+                    confirmedCount++;
+                } else {
+                    req.setStatus(RequestStatus.REJECTED);
+                    rejected.add(req);
+                }
+            }
+        } else if (newStatus == RequestStatus.REJECTED) {
+            for (ParticipationRequest req : requests) {
+                // Разрешаем отклонять запросы в любом статусе, кроме уже отклонённых
+                if (req.getStatus() != RequestStatus.REJECTED) {
+                    req.setStatus(RequestStatus.REJECTED);
+                    rejected.add(req);
+                } else {
+                    rejected.add(req); // уже отклонён
+                }
+            }
+        } else {
+            throw new IllegalArgumentException("Недопустимый статус: " + newStatus);
+        }
+
+        requestRepository.saveAll(requests);
+        log.info("Статусы заявок обновлены");
+
+        return EventRequestStatusUpdateResult.builder()
+                .confirmedRequests(confirmed.stream().map(RequestMapper::toDto).collect(Collectors.toList()))
+                .rejectedRequests(rejected.stream().map(RequestMapper::toDto).collect(Collectors.toList()))
+                .build();
     }
 }

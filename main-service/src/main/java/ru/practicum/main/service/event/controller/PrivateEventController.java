@@ -10,6 +10,11 @@ import ru.practicum.main.service.event.dto.EventShortDto;
 import ru.practicum.main.service.event.dto.NewEventDto;
 import ru.practicum.main.service.event.dto.UpdateEventUserRequest;
 import ru.practicum.main.service.event.service.EventService;
+import ru.practicum.main.service.request.dto.EventRequestStatusUpdateRequest;
+import ru.practicum.main.service.request.dto.EventRequestStatusUpdateResult;
+import ru.practicum.main.service.request.dto.ParticipationRequestDto;
+import ru.practicum.main.service.request.service.RequestService;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -51,4 +56,19 @@ public class PrivateEventController {
         log.info("PATCH /users/{}/events/{} - обновление события: {}", userId, eventId, dto);
         return eventService.updateUserEvent(userId, eventId, dto);
     }
+    @GetMapping("/{eventId}/requests")
+    public List<ParticipationRequestDto> getEventRequests(@PathVariable Long userId,
+                                                          @PathVariable Long eventId) {
+        log.info("GET /users/{}/events/{}/requests", userId, eventId);
+        return requestService.getEventRequests(userId, eventId);
+    }
+
+    @PatchMapping("/{eventId}/requests")
+    public EventRequestStatusUpdateResult updateEventRequestsStatus(@PathVariable Long userId,
+                                                                    @PathVariable Long eventId,
+                                                                    @RequestBody EventRequestStatusUpdateRequest updateRequest) {
+        log.info("PATCH /users/{}/events/{}/requests: {}", userId, eventId, updateRequest);
+        return requestService.updateEventRequestsStatus(userId, eventId, updateRequest);
+    }
+    private final RequestService requestService;
 }
