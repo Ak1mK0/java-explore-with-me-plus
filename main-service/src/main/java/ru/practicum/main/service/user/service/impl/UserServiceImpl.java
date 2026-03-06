@@ -62,11 +62,4 @@ public class UserServiceImpl implements UserService {
 
         userRepository.deleteById(id);
     }
-
-    private void UserEmailCheck(NewUserRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new AlreadyExistsException("Пользователь с адресом '" + request.getEmail() + "' уже существует");
-        }
-    }
-
 }
