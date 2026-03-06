@@ -24,11 +24,17 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto saveUser(NewUserRequest request) {
         log.info("Создание нового пользователя: {}", request);
-        UserEmailCheck(request);
+        userEmailCheck(request);
         User user = UserMapper.toEntity(request);
         log.info("Entity: {}", user);
         user = userRepository.save(user);
         return UserMapper.toDto(user);
+    }
+
+    private void userEmailCheck(NewUserRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new AlreadyExistsException("Пользователь с адресом '" + request.getEmail() + "' уже существует");
+        }
     }
 
     public List<UserDto> getUsers(List<Long> ids, Long from, Long size) {
