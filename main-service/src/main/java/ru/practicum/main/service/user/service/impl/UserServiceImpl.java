@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto saveUser(NewUserRequest request) {
         log.info("Создание нового пользователя: {}", request);
-        UserEmailCheck(request);
+        userEmailCheck(request);
         User user = UserMapper.toEntity(request);
         log.info("Entity: {}", user);
         user = userRepository.save(user);
@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
     }
 
-    private void UserEmailCheck(NewUserRequest request) {
+    private void userEmailCheck(NewUserRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new AlreadyExistsException("Пользователь с адресом '" + request.getEmail() + "' уже существует");
         }
