@@ -29,9 +29,12 @@ public class StatServerServiceImpl implements StatServerService {
     }
 
     public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
+        if (start.isAfter(end)) {
+            throw new IllegalArgumentException("Время начала поиска не может быть после времени окончания");
+        }
         if (uris == null) {
             return statServerRepository.findStats(start, end, unique);
         }
-        return statServerRepository.findStatsByUris(start, end,uris, unique);
+        return statServerRepository.findStatsByUris(start, end, uris, unique);
     }
 }

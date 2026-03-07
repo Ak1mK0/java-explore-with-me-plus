@@ -29,7 +29,8 @@ import ru.practicum.stat.dto.ViewStatsDto;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -135,7 +136,8 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventShortDto> getPublicEvents(String text, List<Long> categories, Boolean paid,
                                                LocalDateTime rangeStart, LocalDateTime rangeEnd,
-                                               Boolean onlyAvailable, String sort, int from, int size) {
+                                               Boolean onlyAvailable, String sort, int from, int size,
+                                               HttpServletRequest request) {
         log.info("Публичный поиск событий");
 
         if (rangeStart == null) {
@@ -171,6 +173,7 @@ public class EventServiceImpl implements EventService {
             result.sort((a, b) -> Long.compare(b.getViews(), a.getViews()));
         }
 
+        saveHit(request);
         return result;
     }
 
@@ -185,7 +188,7 @@ public class EventServiceImpl implements EventService {
             throw new NotFoundException("Событие с id=" + eventId + " не найдено");
         }
 
-        saveHit(eventId, request);
+        saveHit(request);
 
         Long confirmedRequests = getConfirmedRequests(eventId);
         Long views = getViewsForEvent(eventId, event.getPublishedOn() != null ? event.getPublishedOn() : event.getCreatedOn());
@@ -279,7 +282,7 @@ public class EventServiceImpl implements EventService {
         return 0L;
     }
 
-    private void saveHit(Long eventId, HttpServletRequest request) {
+    private void saveHit(HttpServletRequest request) {
         EndpointHitDto hit = EndpointHitDto.builder()
                 .app("ewm-main-service")
                 .uri(request.getRequestURI())

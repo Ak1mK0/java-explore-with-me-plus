@@ -14,7 +14,6 @@ import ru.practicum.main.service.request.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.main.service.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.main.service.request.dto.ParticipationRequestDto;
 import ru.practicum.main.service.request.service.RequestService;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -57,6 +56,7 @@ public class PrivateEventController {
         log.info("PATCH /users/{}/events/{} - обновление события: {}", userId, eventId, dto);
         return eventService.updateUserEvent(userId, eventId, dto);
     }
+
     @GetMapping("/{eventId}/requests")
     public List<ParticipationRequestDto> getEventRequests(@PathVariable Long userId,
                                                           @PathVariable Long eventId) {

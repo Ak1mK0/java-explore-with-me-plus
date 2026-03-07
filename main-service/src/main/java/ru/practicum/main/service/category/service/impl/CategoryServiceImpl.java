@@ -13,8 +13,8 @@ import ru.practicum.main.service.category.model.Category;
 import ru.practicum.main.service.category.repository.CategoryRepository;
 import ru.practicum.main.service.category.service.CategoryService;
 import ru.practicum.main.service.exception.AlreadyExistsException;
-import ru.practicum.main.service.exception.NotFoundException;
 import ru.practicum.main.service.exception.ConditionsNotMetException;
+import ru.practicum.main.service.exception.NotFoundException;
 
 import java.util.List;
 import java.util.stream.Collectors;

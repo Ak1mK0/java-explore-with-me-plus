@@ -21,7 +21,8 @@ public interface EventService {
     // Публичные
     List<EventShortDto> getPublicEvents(String text, List<Long> categories, Boolean paid,
                                         LocalDateTime rangeStart, LocalDateTime rangeEnd,
-                                        Boolean onlyAvailable, String sort, int from, int size);
+                                        Boolean onlyAvailable, String sort, int from, int size,
+                                        HttpServletRequest request);
 
     EventFullDto getPublicEventById(Long eventId, HttpServletRequest request);
 

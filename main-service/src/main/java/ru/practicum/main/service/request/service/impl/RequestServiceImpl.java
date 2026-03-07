@@ -7,7 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.service.event.model.Event;
 import ru.practicum.main.service.event.model.EventState;
 import ru.practicum.main.service.event.repository.EventRepository;
-import ru.practicum.main.service.exception.*;
+import ru.practicum.main.service.exception.ConditionsNotMetException;
+import ru.practicum.main.service.exception.ConflictException;
+import ru.practicum.main.service.exception.NotFoundException;
 import ru.practicum.main.service.request.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.main.service.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.main.service.request.dto.ParticipationRequestDto;
@@ -21,7 +23,6 @@ import ru.practicum.main.service.user.repository.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service

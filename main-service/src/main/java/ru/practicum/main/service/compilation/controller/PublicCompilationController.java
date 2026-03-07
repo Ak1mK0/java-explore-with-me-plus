@@ -1,5 +1,7 @@
 package ru.practicum.main.service.compilation.controller;
 
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -7,8 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.service.compilation.dto.CompilationDto;
 import ru.practicum.main.service.compilation.service.CompilationService;
 
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
