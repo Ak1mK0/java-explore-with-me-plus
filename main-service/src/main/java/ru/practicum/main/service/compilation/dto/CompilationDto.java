@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CompilationDto {
-    private Integer id;
+    private Long id;
 
     private String title;
 

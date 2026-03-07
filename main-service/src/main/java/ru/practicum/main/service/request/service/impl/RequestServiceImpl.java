@@ -53,31 +53,31 @@ public class RequestServiceImpl implements RequestService {
                 .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
 
         // Проверка существования события
-        Event event = eventRepository.findById(Long.valueOf(eventId))  // Исправлено
+        Event event = eventRepository.findById(Long.valueOf(eventId))
                 .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
 
         // Инициатор не может подать заявку на своё событие
         if (event.getInitiator().getId().equals(userId)) {
-            throw new ConditionsNotMetException("Инициатор события не может добавить запрос " +
+            throw new ConflictException("Инициатор события не может добавить запрос " +
                     "на участие в своём событии");
         }
 
         // Событие должно быть опубликовано
         if (event.getState() != EventState.PUBLISHED) {
-            throw new ConditionsNotMetException("Нельзя участвовать в неопубликованном событии");
+            throw new ConflictException("Нельзя участвовать в неопубликованном событии");
         }
 
         // Проверка на существующую заявку
         requestRepository.findByEventIdAndRequesterId(eventId, userId)
                 .ifPresent(r -> {
-                    throw new ConditionsNotMetException("Нельзя добавить повторный запрос на это событие");
+                    throw new ConflictException("Нельзя добавить повторный запрос на это событие");
                 });
 
         // Проверка лимита участников (если лимит установлен и достигнут)
         if (event.getParticipantLimit() > 0) {
             long confirmedCount = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
             if (confirmedCount >= event.getParticipantLimit()) {
-                throw new ConditionsNotMetException("Достигнут лимит участников для события");
+                throw new ConflictException("Достигнут лимит участников для события");
             }
         }
 
@@ -85,7 +85,7 @@ public class RequestServiceImpl implements RequestService {
         ParticipationRequest request = RequestMapper.toNewRequest(event, requester);
 
         // Если пре-модерация отключена, заявка сразу подтверждается
-        if (!event.getRequestModeration()) {
+        if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
             request.setStatus(RequestStatus.CONFIRMED);
         }
 
@@ -175,11 +175,14 @@ public class RequestServiceImpl implements RequestService {
                 } else {
                     req.setStatus(RequestStatus.REJECTED);
                     rejected.add(req);
+                    throw new ConflictException("Лимит участников достигнут");
                 }
             }
         } else if (newStatus == RequestStatus.REJECTED) {
             for (ParticipationRequest req : requests) {
-                // Разрешаем отклонять запросы в любом статусе, кроме уже отклонённых
+                if (req.getStatus() == RequestStatus.CONFIRMED) {
+                    throw new ConflictException("Нельзя отменить принятую заявку");
+                }
                 if (req.getStatus() != RequestStatus.REJECTED) {
                     req.setStatus(RequestStatus.REJECTED);
                     rejected.add(req);

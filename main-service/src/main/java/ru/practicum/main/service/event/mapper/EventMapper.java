@@ -78,6 +78,20 @@ public class EventMapper {
                 .build();
     }
 
+    public static EventShortDto toShortDto(Event event) {
+        return EventShortDto.builder()
+                .id(event.getId())
+                .annotation(event.getAnnotation())
+                .category(CategoryMapper.toDto(event.getCategory()))
+                .confirmedRequests(0L)
+                .eventDate(event.getEventDate())
+                .initiator(UserMapper.toShortDto(event.getInitiator()))
+                .paid(event.getPaid())
+                .title(event.getTitle())
+                .views(0L)
+                .build();
+    }
+
     public static void updateEventFromUserRequest(Event event, UpdateEventUserRequest dto, Category category) {
         if (dto.getAnnotation() != null) event.setAnnotation(dto.getAnnotation());
         if (category != null) event.setCategory(category);

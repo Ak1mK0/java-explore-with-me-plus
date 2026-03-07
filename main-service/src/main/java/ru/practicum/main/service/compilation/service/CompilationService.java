@@ -11,12 +11,12 @@ public interface CompilationService {
     // Admin
     CompilationDto createCompilation(NewCompilationDto newCompilationDto);
 
-    void deleteCompilation(Integer compId);
+    void deleteCompilation(Long compId);
 
-    CompilationDto updateCompilation(Integer compId, UpdateCompilationRequest request);
+    CompilationDto updateCompilation(Long compId, UpdateCompilationRequest request);
 
     // Public
     List<CompilationDto> getCompilations(Boolean pinned, int from, int size);
 
-    CompilationDto getCompilationById(Integer compId);
+    CompilationDto getCompilationById(Long compId);
 }

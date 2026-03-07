@@ -21,5 +21,5 @@ public class NewCompilationDto {
 
     private Boolean pinned; // если не указано, по умолчанию false (установлено в сервисе)
 
-    private List<Integer> events; // список идентификаторов событий
+    private List<Long> events; // список идентификаторов событий
 }

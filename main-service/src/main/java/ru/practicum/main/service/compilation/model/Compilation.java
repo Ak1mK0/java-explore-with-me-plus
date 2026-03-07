@@ -28,7 +28,7 @@ public class Compilation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name = "title", nullable = false, length = 50)
     private String title;

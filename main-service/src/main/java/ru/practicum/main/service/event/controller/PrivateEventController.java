@@ -25,6 +25,7 @@ import java.util.List;
 public class PrivateEventController {
 
     private final EventService eventService;
+    private final RequestService requestService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -70,5 +71,5 @@ public class PrivateEventController {
         log.info("PATCH /users/{}/events/{}/requests: {}", userId, eventId, updateRequest);
         return requestService.updateEventRequestsStatus(userId, eventId, updateRequest);
     }
-    private final RequestService requestService;
+
 }

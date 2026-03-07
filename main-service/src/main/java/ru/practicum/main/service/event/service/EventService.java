@@ -1,5 +1,6 @@
 package ru.practicum.main.service.event.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import ru.practicum.main.service.event.dto.*;
 import ru.practicum.main.service.event.model.EventState;
 
@@ -22,7 +23,7 @@ public interface EventService {
                                         LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                         Boolean onlyAvailable, String sort, int from, int size);
 
-    EventFullDto getPublicEventById(Long eventId);
+    EventFullDto getPublicEventById(Long eventId, HttpServletRequest request);
 
     // Админские
     List<EventFullDto> getAdminEvents(List<Long> users, List<EventState> states, List<Long> categories,

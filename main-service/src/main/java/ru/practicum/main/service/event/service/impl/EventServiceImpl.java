@@ -1,5 +1,6 @@
 package ru.practicum.main.service.event.service.impl;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +17,7 @@ import ru.practicum.main.service.event.model.EventState;
 import ru.practicum.main.service.event.repository.EventRepository;
 import ru.practicum.main.service.event.service.EventService;
 import ru.practicum.main.service.exception.ConditionsNotMetException;
+import ru.practicum.main.service.exception.ConflictException;
 import ru.practicum.main.service.exception.NotFoundException;
 import ru.practicum.main.service.request.model.RequestStatus;
 import ru.practicum.main.service.request.repository.RequestRepository;
@@ -94,7 +96,7 @@ public class EventServiceImpl implements EventService {
         Event event = findEventByIdAndInitiator(eventId, userId);
 
         if (event.getState() != EventState.CANCELED && event.getState() != EventState.PENDING) {
-            throw new ConditionsNotMetException("Изменить можно только отмененные события или события в состоянии ожидания модерации");
+            throw new ConflictException("Изменить можно только отмененные события или события в состоянии ожидания модерации");
         }
 
         if (dto.getEventDate() != null && dto.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
@@ -173,7 +175,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullDto getPublicEventById(Long eventId) {
+    public EventFullDto getPublicEventById(Long eventId, HttpServletRequest request) {
         log.info("Публичное получение события {}", eventId);
 
         Event event = eventRepository.findById(eventId)
@@ -183,7 +185,7 @@ public class EventServiceImpl implements EventService {
             throw new NotFoundException("Событие с id=" + eventId + " не найдено");
         }
 
-        saveHit(eventId);
+        saveHit(eventId, request);
 
         Long confirmedRequests = getConfirmedRequests(eventId);
         Long views = getViewsForEvent(eventId, event.getPublishedOn() != null ? event.getPublishedOn() : event.getCreatedOn());
@@ -222,7 +224,7 @@ public class EventServiceImpl implements EventService {
             switch (dto.getStateAction()) {
                 case "PUBLISH_EVENT":
                     if (event.getState() != EventState.PENDING) {
-                        throw new ConditionsNotMetException("Опубликовать можно только событие в состоянии ожидания");
+                        throw new ConflictException("Опубликовать можно только событие в состоянии ожидания");
                     }
                     if (event.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
                         throw new ConditionsNotMetException("Дата начала события должна быть не ранее чем через час от публикации");
@@ -232,7 +234,7 @@ public class EventServiceImpl implements EventService {
                     break;
                 case "REJECT_EVENT":
                     if (event.getState() == EventState.PUBLISHED) {
-                        throw new ConditionsNotMetException("Нельзя отклонить уже опубликованное событие");
+                        throw new ConflictException("Нельзя отклонить уже опубликованное событие");
                     }
                     event.setState(EventState.CANCELED);
                     break;
@@ -270,18 +272,18 @@ public class EventServiceImpl implements EventService {
     private Long getViewsForEvent(Long eventId, LocalDateTime start) {
         if (start == null) start = LocalDateTime.now().minusYears(10);
         List<String> uris = List.of("/events/" + eventId);
-        List<ViewStatsDto> stats = statsClient.getStats(start, LocalDateTime.now(), uris, false);
+        List<ViewStatsDto> stats = statsClient.getStats(start, LocalDateTime.now(), uris, true);
         if (!stats.isEmpty()) {
-            return stats.get(0).getHits();
+            return stats.getFirst().getHits();
         }
         return 0L;
     }
 
-    private void saveHit(Long eventId) {
+    private void saveHit(Long eventId, HttpServletRequest request) {
         EndpointHitDto hit = EndpointHitDto.builder()
                 .app("ewm-main-service")
-                .uri("/events/" + eventId)
-                .ip("0.0.0.0")
+                .uri(request.getRequestURI())
+                .ip(request.getRemoteAddr())
                 .timestamp(LocalDateTime.now())
                 .build();
         statsClient.hit(hit);

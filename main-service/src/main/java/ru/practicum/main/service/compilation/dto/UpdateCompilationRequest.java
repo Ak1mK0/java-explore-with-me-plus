@@ -19,5 +19,5 @@ public class UpdateCompilationRequest {
 
     private Boolean pinned;
 
-    private List<Integer> events; // список идентификаторов событий для полной замены
+    private List<Long> events; // список идентификаторов событий для полной замены
 }

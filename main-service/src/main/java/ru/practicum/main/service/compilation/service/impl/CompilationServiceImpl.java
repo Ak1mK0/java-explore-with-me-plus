@@ -50,7 +50,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     @Transactional
-    public void deleteCompilation(Integer compId) {
+    public void deleteCompilation(Long compId) {
         log.info("Удаление подборки с id: {}", compId);
         if (!compilationRepository.existsById(compId)) {
             throw new CompilationNotFoundException("Подборка с id=" + compId + " не найдена");
@@ -61,7 +61,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     @Transactional
-    public CompilationDto updateCompilation(Integer compId, UpdateCompilationRequest request) {
+    public CompilationDto updateCompilation(Long compId, UpdateCompilationRequest request) {
         log.info("Обновление подборки {} данными: {}", compId, request);
 
         Compilation compilation = compilationRepository.findById(compId)
@@ -98,7 +98,7 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
-    public CompilationDto getCompilationById(Integer compId) {
+    public CompilationDto getCompilationById(Long compId) {
         log.info("Получение подборки по id: {}", compId);
         Compilation compilation = compilationRepository.findById(compId)
                 .orElseThrow(() -> new CompilationNotFoundException("Подборка с id=" + compId + " не найдена"));
@@ -107,15 +107,15 @@ public class CompilationServiceImpl implements CompilationService {
 
     // Вспомогательные методы
 
-    private List<Event> getEventsByIds(List<Integer> eventIds) {
+    private List<Event> getEventsByIds(List<Long> eventIds) {
         if (eventIds == null || eventIds.isEmpty()) {
             return Collections.emptyList();
         }
         List<Event> events = eventRepository.findAllById(eventIds);
         if (events.size() != eventIds.size()) {
             // Найдём, какие id отсутствуют
-            List<Integer> foundIds = events.stream().map(Event::getId).toList();
-            List<Integer> missing = eventIds.stream().filter(id -> !foundIds.contains(id)).toList();
+            List<Long> foundIds = events.stream().map(Event::getId).toList();
+            List<Long> missing = eventIds.stream().filter(id -> !foundIds.contains(id)).toList();
             throw new NotFoundException("События с id " + missing + " не найдены");
         }
         return events;

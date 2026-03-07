@@ -16,24 +16,6 @@ import java.util.List;
 @Import(StatsClient.class)
 public class MainService {
     public static void main(String[] args) {
-        ConfigurableApplicationContext context = SpringApplication.run(MainService.class, args);
-
-        StatsClient statsClient = context.getBean(StatsClient.class);
-        EndpointHitDto hit = EndpointHitDto.builder()
-                .app("app")
-                .uri("uri")
-                .ip("111.111.111.111")
-                .timestamp(LocalDateTime.now())
-                .build();
-        hit = statsClient.hit(hit);
-        System.out.println("hit: " + hit);
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-        LocalDateTime start = LocalDateTime.parse("2020-05-05 00:00:00", formatter);
-        LocalDateTime end = LocalDateTime.parse("2035-05-05 00:00:00", formatter);
-
-        List<ViewStatsDto> dto = statsClient.getStats(start, end, null, null);
-        System.out.println("dto: " + dto);
+        SpringApplication.run(MainService.class, args);
     }
 }

@@ -1,5 +1,6 @@
 package ru.practicum.main.service.event.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -16,6 +17,7 @@ import java.util.List;
 @RequestMapping("/admin/events")
 @RequiredArgsConstructor
 @Slf4j
+@Valid
 public class AdminEventController {
 
     private final EventService eventService;
@@ -34,7 +36,7 @@ public class AdminEventController {
 
     @PatchMapping("/{eventId}")
     public EventFullDto updateEvent(@PathVariable Long eventId,
-                                    @RequestBody UpdateEventAdminRequest dto) {
+                                    @RequestBody @Valid UpdateEventAdminRequest dto) {
         log.info("PATCH /admin/events/{} - админское обновление события: {}", eventId, dto);
         return eventService.updateAdminEvent(eventId, dto);
     }
