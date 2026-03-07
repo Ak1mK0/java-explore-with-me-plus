@@ -19,6 +19,10 @@ public interface RequestRepository extends JpaRepository<ParticipationRequest, I
 
     Optional<ParticipationRequest> findByEventIdAndRequesterId(Integer eventId, Integer userId);
 
+    List<ParticipationRequest> findAllByEventId(Integer eventId);
+
+    List<ParticipationRequest> findAllByIdIn(List<Integer> ids);
+
     @Query("SELECT COUNT(r) FROM ParticipationRequest r " +
             "WHERE r.event.id = :eventId AND r.status = :status")
     long countByEventIdAndStatus(@Param("eventId") Integer eventId,

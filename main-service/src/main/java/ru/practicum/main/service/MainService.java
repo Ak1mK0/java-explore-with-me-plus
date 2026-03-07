@@ -19,11 +19,12 @@ public class MainService {
         ConfigurableApplicationContext context = SpringApplication.run(MainService.class, args);
 
         StatsClient statsClient = context.getBean(StatsClient.class);
-        EndpointHitDto hit = new EndpointHitDto(null,
-                "app",
-                "uri",
-                "111.111.111.111",
-                LocalDateTime.now());
+        EndpointHitDto hit = EndpointHitDto.builder()
+                .app("app")
+                .uri("uri")
+                .ip("111.111.111.111")
+                .timestamp(LocalDateTime.now())
+                .build();
         hit = statsClient.hit(hit);
         System.out.println("hit: " + hit);
 
