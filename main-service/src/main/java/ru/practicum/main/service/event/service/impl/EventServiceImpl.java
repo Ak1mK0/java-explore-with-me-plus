@@ -329,10 +329,16 @@ public class EventServiceImpl implements EventService {
     private List<EventFullDto> enrichEventsFullWithStats(List<Event> events) {
         if (events.isEmpty()) return List.of();
 
-        Map<Long, Long> confirmedMap = events.stream()
-                .collect(Collectors.toMap(
-                        Event::getId,
-                        e -> requestRepository.countByEventIdAndStatus(e.getId().intValue(), RequestStatus.CONFIRMED)
+        List<Long> eventIds = events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
+
+        Map<Long, Long> confirmedMap = requestRepository
+                .findAllByEventIdInAndStatus(eventIds, RequestStatus.CONFIRMED)
+                .stream()
+                .collect(Collectors.groupingBy(
+                        request -> request.getEvent().getId(),
+                        Collectors.counting()
                 ));
 
         LocalDateTime earliestStart = events.stream()

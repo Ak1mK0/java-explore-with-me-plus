@@ -14,8 +14,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/compilations")
 @RequiredArgsConstructor
-@Slf4j
 @Validated
+@Slf4j
 public class PublicCompilationController {
 
     private final CompilationService compilationService;
@@ -29,7 +29,7 @@ public class PublicCompilationController {
     }
 
     @GetMapping("/{compId}")
-    public CompilationDto getCompilation(@PathVariable Long compId) {
+    public CompilationDto getCompilation(@PathVariable @Positive Long compId) {
         log.info("GET /compilations/{}", compId);
         return compilationService.getCompilationById(compId);
     }

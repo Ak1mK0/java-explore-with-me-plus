@@ -8,9 +8,11 @@ import java.util.List;
 
 @Entity
 @Table(name = "compilations")
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
+@ToString
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class Compilation {
 

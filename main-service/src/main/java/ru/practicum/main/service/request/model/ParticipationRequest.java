@@ -11,9 +11,11 @@ import java.time.LocalDateTime;
 @Table(name = "requests", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"event_id", "requester_id"}, name = "uq_request")
 })
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
+@ToString
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class ParticipationRequest {
 

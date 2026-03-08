@@ -16,8 +16,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/users/{userId}/requests")
 @RequiredArgsConstructor
-@Slf4j
 @Validated
+@Slf4j
 public class PrivateRequestController {
 
     private final RequestService requestService;
@@ -44,15 +44,15 @@ public class PrivateRequestController {
     }
 
     @GetMapping("/{eventId}/requests")
-    public List<ParticipationRequestDto> getEventRequests(@PathVariable Long userId,
-                                                          @PathVariable Long eventId) {
+    public List<ParticipationRequestDto> getEventRequests(@PathVariable @Positive Long userId,
+                                                          @PathVariable @Positive Long eventId) {
         log.info("GET /users/{}/events/{}/requests", userId, eventId);
         return requestService.getEventRequests(userId, eventId);
     }
 
     @PatchMapping("/{eventId}/requests")
-    public EventRequestStatusUpdateResult updateEventRequestsStatus(@PathVariable Long userId,
-                                                                    @PathVariable Long eventId,
+    public EventRequestStatusUpdateResult updateEventRequestsStatus(@PathVariable @Positive Long userId,
+                                                                    @PathVariable @Positive Long eventId,
                                                                     @RequestBody EventRequestStatusUpdateRequest updateRequest) {
         log.info("PATCH /users/{}/events/{}/requests с телом: {}", userId, eventId, updateRequest);
         return requestService.updateEventRequestsStatus(userId, eventId, updateRequest);
