@@ -8,9 +8,9 @@ services:
       stat-server-db:
         condition: service_healthy
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://stat-server-db:5432/ewm-stat
-      - SPRING_DATASOURCE_USERNAME=dbuser
-      - SPRING_DATASOURCE_PASSWORD=12345
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_STAT_SERVER}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME_STAT_SERVER}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD_STAT_SERVER}
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:9090/actuator/health" ]
       timeout: 5s
@@ -25,26 +25,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_DB=ewm-stat
-      - POSTGRES_USER=dbuser
-      - POSTGRES_PASSWORD=12345
-    healthcheck:
-      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
-      timeout: 5s
-      interval: 5s
-      retries: 10
-
-  ewm-main-db:
-    image: postgres:16.1
-    container_name: ewm-main-db
-    volumes:
-      - ./main-service/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
-    ports:
-      - "5433:5432"
-    environment:
-      - POSTGRES_DB=ewm-main
-      - POSTGRES_USER=main
-      - POSTGRES_PASSWORD=main
+      - POSTGRES_DB=${POSTGRES_DB_STAT_SERVER}
+      - POSTGRES_USER=${POSTGRES_USER_STAT_SERVER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD_STAT_SERVER}
     healthcheck:
       test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
       timeout: 5s
@@ -62,12 +45,28 @@ services:
       ewm-main-db:
         condition: service_healthy
     environment:
-      - CLIENT_URL=http://stat-server:9090
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-main-db:5432/ewm-main
-      - SPRING_DATASOURCE_USERNAME=main
-      - SPRING_DATASOURCE_PASSWORD=main
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_MAIN_SERVICE}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME_MAIN_SERVICE}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD_MAIN_SERVICE}
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      timeout: 5s
+      interval: 5s
+      retries: 10
+
+  ewm-main-db:
+    image: postgres:16.1
+    container_name: ewm-main-db
+    volumes:
+      - ./main-service/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB_MAIN_SERVICE}
+      - POSTGRES_USER=${POSTGRES_USER_MAIN_SERVICE}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD_MAIN_SERVICE}
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
       timeout: 5s
       interval: 5s
       retries: 10
