@@ -56,3 +56,6 @@ CREATE TABLE IF NOT EXISTS event_ratings (
     created TIMESTAMP NOT NULL DEFAULT NOW(),
     UNIQUE(event_id, user_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_event_ratings_user_id_created ON event_ratings(user_id, created DESC);
+CREATE INDEX IF NOT EXISTS idx_event_ratings_user_id_type_created ON event_ratings(user_id, rating_type, created DESC);

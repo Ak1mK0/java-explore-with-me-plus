@@ -1,5 +1,6 @@
 package ru.practicum.main.service.rating.repository;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -18,30 +19,36 @@ public interface EventRatingRepository extends JpaRepository<EventRating, Long> 
 
     boolean existsByEventIdAndUserId(Long eventId, Long userId);
 
+    @Query("SELECT r FROM EventRating r WHERE r.userId = :userId ORDER BY r.created DESC")
+    List<EventRating> findByUserIdOrderByCreatedDesc(@Param("userId") Long userId, Pageable pageable);
+
+    @Query("SELECT COUNT(r) FROM EventRating r WHERE r.userId = :userId")
+    long countByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT r FROM EventRating r WHERE r.userId = :userId AND r.ratingType = :type ORDER BY r.created DESC")
+    List<EventRating> findByUserIdAndRatingTypeOrderByCreatedDesc(
+            @Param("userId") Long userId,
+            @Param("type") EventRating.RatingType type,
+            Pageable pageable);
+
+    @Query("SELECT COUNT(r) FROM EventRating r WHERE r.userId = :userId AND r.ratingType = :type")
+    long countByUserIdAndRatingType(@Param("userId") Long userId, @Param("type") EventRating.RatingType type);
+
     @Query("SELECT r.eventId, " +
             "COUNT(CASE WHEN r.ratingType = 'LIKE' THEN 1 END), " +
             "COUNT(CASE WHEN r.ratingType = 'DISLIKE' THEN 1 END) " +
             "FROM EventRating r " +
             "WHERE r.eventId = :eventId " +
             "GROUP BY r.eventId")
-    List<Object[]> getRatingByEventId(@Param("eventId") Long eventId);
-
-    @Query("SELECT r.userId, " +
-            "COUNT(CASE WHEN r.ratingType = 'LIKE' THEN 1 END), " +
-            "COUNT(CASE WHEN r.ratingType = 'DISLIKE' THEN 1 END) " +
-            "FROM EventRating r " +
-            "WHERE r.userId = :userId " +
-            "GROUP BY r.userId")
-    List<Object[]> getRatingByUserId(@Param("userId") Long userId);
+    List<Object[]> getRatingStatsByEventId(@Param("eventId") Long eventId);
 
     @Query("SELECT r.eventId, " +
             "(COUNT(CASE WHEN r.ratingType = 'LIKE' THEN 1 END) - " +
             "COUNT(CASE WHEN r.ratingType = 'DISLIKE' THEN 1 END)) as rating " +
             "FROM EventRating r " +
             "GROUP BY r.eventId " +
-            "ORDER BY rating DESC " +
-            "LIMIT :limit")
-    List<Object[]> findTopRatedEvents(@Param("limit") int limit);
+            "ORDER BY rating DESC")
+    List<Object[]> findTopRatedEvents(Pageable pageable);
 
     @Modifying
     @Transactional

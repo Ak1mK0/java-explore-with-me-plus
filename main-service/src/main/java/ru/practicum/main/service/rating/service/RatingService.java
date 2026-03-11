@@ -1,23 +1,23 @@
 package ru.practicum.main.service.rating.service;
 
-import ru.practicum.main.service.rating.dto.EventRatingDto;
-import ru.practicum.main.service.rating.dto.UserRatingDto;
+import ru.practicum.main.service.rating.dto.EventRatingResponseDto;
+import ru.practicum.main.service.rating.dto.EventRatingStatsDto;
+import ru.practicum.main.service.rating.dto.EventRatingListDto;
+import ru.practicum.main.service.rating.dto.EventRatingTopDto;
 
 import java.util.List;
 
 public interface RatingService {
 
-    EventRatingDto addLike(Long eventId, Long userId);
+    EventRatingResponseDto addLike(Long userId, Long eventId);
 
-    EventRatingDto addDislike(Long eventId, Long userId);
+    EventRatingResponseDto addDislike(Long userId, Long eventId);
 
-    void removeLike(Long eventId, Long userId);
+    void deleteRating(Long userId, Long eventId);
 
-    void removeDislike(Long eventId, Long userId);
+    EventRatingStatsDto getEventRatingStats(Long eventId);
 
-    EventRatingDto getEventRating(Long eventId);
+    EventRatingListDto getUserRatings(Long userId, String rating, int from, int size);
 
-    UserRatingDto getUserRating(Long userId);
-
-    List<EventRatingDto> getTopRatedEvents(int limit);
+    List<EventRatingTopDto> getTopRatedEvents(int from, int size, String order);
 }
