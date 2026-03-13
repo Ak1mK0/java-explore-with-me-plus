@@ -45,7 +45,7 @@ public class EventRating {
     private RatingType ratingType;
 
     @Column(name = "created", nullable = false)
-    private LocalDateTime created;  // это и есть timestamp
+    private LocalDateTime created;
 
     public enum RatingType {
         LIKE, DISLIKE

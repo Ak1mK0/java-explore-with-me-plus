@@ -26,8 +26,8 @@ public class UserServiceImpl implements UserService {
         log.info("Создание нового пользователя: {}", request);
         userEmailCheck(request);
         User user = UserMapper.toEntity(request);
-        log.info("Entity: {}", user);
         user = userRepository.save(user);
+        log.info("Создан пользователь с id={}", user.getId());
         return UserMapper.toDto(user);
     }
 

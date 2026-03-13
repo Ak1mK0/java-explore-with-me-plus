@@ -14,12 +14,12 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RatingMapper {
 
-    public static EventRating toEntity(Long eventId, Long userId, EventRating.RatingType type) {
+    public static EventRating toEntity(Long eventId, Long userId, EventRating.RatingType type, LocalDateTime time) {
         return EventRating.builder()
                 .eventId(eventId)
                 .userId(userId)
                 .ratingType(type)
-                .created(LocalDateTime.now())
+                .created(time)
                 .build();
     }
 

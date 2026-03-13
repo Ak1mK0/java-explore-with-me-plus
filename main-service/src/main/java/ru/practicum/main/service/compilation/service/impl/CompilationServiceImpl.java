@@ -18,7 +18,6 @@ import ru.practicum.main.service.event.dto.EventShortDto;
 import ru.practicum.main.service.event.mapper.EventMapper;
 import ru.practicum.main.service.event.model.Event;
 import ru.practicum.main.service.event.repository.EventRepository;
-import ru.practicum.main.service.exception.CompilationNotFoundException;
 import ru.practicum.main.service.exception.NotFoundException;
 
 import java.util.Collections;
@@ -53,7 +52,7 @@ public class CompilationServiceImpl implements CompilationService {
     public void deleteCompilation(Long compId) {
         log.info("Удаление подборки с id: {}", compId);
         if (!compilationRepository.existsById(compId)) {
-            throw new CompilationNotFoundException("Подборка с id=" + compId + " не найдена");
+            throw new NotFoundException("Подборка с id=" + compId + " не найдена");
         }
         compilationRepository.deleteById(compId);
         log.info("Подборка {} удалена", compId);
@@ -65,7 +64,7 @@ public class CompilationServiceImpl implements CompilationService {
         log.info("Обновление подборки {} данными: {}", compId, request);
 
         Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new CompilationNotFoundException("Подборка с id=" + compId + " не найдена"));
+                .orElseThrow(() -> new NotFoundException("Подборка с id=" + compId + " не найдена"));
 
         List<Event> events = null;
         if (request.getEvents() != null) {
@@ -101,7 +100,7 @@ public class CompilationServiceImpl implements CompilationService {
     public CompilationDto getCompilationById(Long compId) {
         log.info("Получение подборки по id: {}", compId);
         Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new CompilationNotFoundException("Подборка с id=" + compId + " не найдена"));
+                .orElseThrow(() -> new NotFoundException("Подборка с id=" + compId + " не найдена"));
         return toDtoWithEvents(compilation);
     }
 

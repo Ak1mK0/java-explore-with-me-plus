@@ -12,7 +12,7 @@ import ru.practicum.main.service.rating.model.EventRating;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
+
 public interface EventRatingRepository extends JpaRepository<EventRating, Long> {
 
     Optional<EventRating> findByEventIdAndUserId(Long eventId, Long userId);
@@ -46,8 +46,7 @@ public interface EventRatingRepository extends JpaRepository<EventRating, Long> 
             "(COUNT(CASE WHEN r.ratingType = 'LIKE' THEN 1 END) - " +
             "COUNT(CASE WHEN r.ratingType = 'DISLIKE' THEN 1 END)) as rating " +
             "FROM EventRating r " +
-            "GROUP BY r.eventId " +
-            "ORDER BY rating DESC")
+            "GROUP BY r.eventId ")
     List<Object[]> findTopRatedEvents(Pageable pageable);
 
     @Modifying
