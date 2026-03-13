@@ -16,12 +16,11 @@ import ru.practicum.main.service.rating.mapper.RatingMapper;
 import ru.practicum.main.service.rating.model.EventRating;
 import ru.practicum.main.service.rating.repository.EventRatingRepository;
 import ru.practicum.main.service.rating.service.RatingService;
+import ru.practicum.main.service.request.model.RequestStatus;
+import ru.practicum.main.service.request.repository.RequestRepository;
 import ru.practicum.main.service.user.model.User;
 import ru.practicum.main.service.user.repository.UserRepository;
-import ru.practicum.main.service.request.repository.RequestRepository;
-import ru.practicum.main.service.request.model.RequestStatus;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
