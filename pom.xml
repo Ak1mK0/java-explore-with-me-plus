@@ -24,13 +24,10 @@
 	</properties>
 
 	<modules>
-		<module>main-service</module>
 		<module>stat</module>
         <module>infra</module>
-		<module>infra</module>
-        <module>infra/discovery-server</module>
-        <module>infra/gateway-server</module>
-    </modules>
+		<module>core</module>
+	</modules>
 
 	<build>
 		<pluginManagement>
